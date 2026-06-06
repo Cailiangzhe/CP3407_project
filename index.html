@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FreshTrack Pantry</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand">
+          <div class="brand-mark">F</div>
+          <div>
+            <h1>FreshTrack</h1>
+            <p>Smart Pantry</p>
+          </div>
+        </div>
+
+        <nav class="nav" id="mainNav" hidden>
+          <button class="nav-link active" data-view="dashboard" type="button">Dashboard</button>
+          <button class="nav-link" data-view="pantry" type="button">Pantry</button>
+          <button class="nav-link" data-view="shopping" type="button">Shopping List</button>
+          <button class="nav-link" data-view="recipes" type="button">Recipes</button>
+          <button class="nav-link admin-only" data-view="admin" type="button" hidden>Database UI</button>
+        </nav>
+
+        <div class="session-card" id="sessionCard" hidden>
+          <div>
+            <strong id="sessionName">Guest</strong>
+            <span id="sessionRole">User</span>
+          </div>
+          <button class="ghost-button" id="logoutBtn" type="button">Logout</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="auth-view" id="authView">
+          <div class="auth-copy">
+            <span class="eyebrow">Food waste reduction</span>
+            <h2>Track food, catch expiry risks, and plan smarter shopping.</h2>
+            <p>
+              A self-contained prototype with account-based pantry separation,
+              use-soon meal planning, waste analytics, and API-ready hooks for
+              future Flask/MySQL integration.
+            </p>
+          </div>
+
+          <div class="auth-panel">
+            <div class="tabs" role="tablist" aria-label="Authentication tabs">
+              <button class="tab active" id="loginTab" type="button">Login</button>
+              <button class="tab" id="registerTab" type="button">Register</button>
+            </div>
+
+            <form id="loginForm" class="form auth-form">
+              <label>
+                Email
+                <input name="email" type="email" autocomplete="email" required>
+              </label>
+              <label>
+                Password
+                <input name="password" type="password" autocomplete="current-password" required>
+              </label>
+              <button class="primary-button" type="submit">Login</button>
+              <p class="hint">
+                Admin: admin@freshtrack.local / Admin123!
+                <br>
+                Demo user: mia@example.com / Demo123!
+              </p>
+            </form>
+
+            <form id="registerForm" class="form auth-form" hidden>
+              <label>
+                Full name
+                <input name="name" type="text" autocomplete="name" minlength="2" required>
+              </label>
+              <label>
+                Email
+                <input name="email" type="email" autocomplete="email" required>
+              </label>
+              <label>
+                Password
+                <input name="password" type="password" autocomplete="new-password" minlength="6" required>
+              </label>
+              <button class="primary-button" type="submit">Create account</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="app-view" id="appView" hidden>
+          <header class="topbar">
+            <div>
+              <span class="eyebrow" id="viewEyebrow">Overview</span>
+              <h2 id="viewTitle">Dashboard</h2>
+            </div>
+            <button class="primary-button compact" id="openFoodModalBtn" type="button">Add Food</button>
+          </header>
+
+          <section class="view active" id="dashboardView">
+            <div class="metrics">
+              <article class="metric">
+                <span>Total items</span>
+                <strong id="metricTotal">0</strong>
+              </article>
+              <article class="metric">
+                <span>High risk</span>
+                <strong id="metricHighRisk">0</strong>
+              </article>
+              <article class="metric">
+                <span>Monthly waste</span>
+                <strong id="metricWaste">0</strong>
+              </article>
+              <article class="metric">
+                <span>Estimated loss</span>
+                <strong id="metricLoss">$0.00</strong>
+              </article>
+            </div>
+
+            <div class="split">
+              <section class="panel highlight-panel">
+                <div class="panel-heading">
+                  <h3>Use-Soon Menu</h3>
+                  <span class="panel-note">Prioritises food close to expiry</span>
+                </div>
+                <div class="menu-list" id="expiryMenu"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-heading">
+                  <h3>Waste Insights</h3>
+                  <span class="panel-note">This month's outcomes</span>
+                </div>
+                <div class="insight-list" id="wasteInsights"></div>
+              </section>
+            </div>
+
+            <div class="split">
+              <section class="panel">
+                <div class="panel-heading">
+                  <h3>Expiry Risk</h3>
+                </div>
+                <div class="risk-list" id="riskList"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-heading">
+                  <h3>Recent Activity</h3>
+                </div>
+                <div class="activity-list" id="activityList"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" id="pantryView">
+            <div class="toolbar">
+              <input id="searchFood" type="search" placeholder="Search food">
+              <select id="categoryFilter" aria-label="Filter by category">
+                <option value="all">All categories</option>
+                <option value="Vegetables">Vegetables</option>
+                <option value="Fruits">Fruits</option>
+                <option value="Meat">Meat</option>
+                <option value="Dairy">Dairy</option>
+                <option value="Grains">Grains</option>
+                <option value="Other">Other</option>
+              </select>
+              <select id="statusFilter" aria-label="Filter by status">
+                <option value="all">All statuses</option>
+                <option value="available">Available</option>
+                <option value="eaten">Eaten</option>
+                <option value="expired">Expired</option>
+                <option value="discarded">Discarded</option>
+                <option value="donated">Donated</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Qty</th>
+                    <th>Storage</th>
+                    <th>Purchased</th>
+                    <th>Expires</th>
+                    <th>Risk</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="foodTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="view" id="shoppingView">
+            <form class="inline-form" id="shoppingForm">
+              <input name="item" type="text" placeholder="Add shopping item" required>
+              <button class="primary-button compact" type="submit">Add</button>
+            </form>
+            <div class="panel">
+              <div class="panel-heading">
+                <h3>Shopping List</h3>
+                <button class="ghost-button" id="suggestShoppingBtn" type="button">Suggest from pantry</button>
+              </div>
+              <ul class="check-list" id="shoppingList"></ul>
+            </div>
+          </section>
+
+          <section class="view" id="recipesView">
+            <div class="panel">
+              <div class="panel-heading">
+                <h3>Recipe Suggestions</h3>
+                <span class="panel-note">Matched against your own pantry only</span>
+              </div>
+              <div class="recipe-grid" id="recipeGrid"></div>
+            </div>
+          </section>
+
+          <section class="view" id="adminView">
+            <div class="metrics">
+              <article class="metric">
+                <span>Users</span>
+                <strong id="adminUserCount">0</strong>
+              </article>
+              <article class="metric">
+                <span>All food items</span>
+                <strong id="adminFoodCount">0</strong>
+              </article>
+              <article class="metric">
+                <span>Expired/discarded</span>
+                <strong id="adminWasteCount">0</strong>
+              </article>
+            </div>
+
+            <div class="panel">
+              <div class="panel-heading">
+                <h3>Users Table</h3>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Items</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminUsersBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-heading">
+                <h3>Food Records Table</h3>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Owner</th>
+                      <th>Name</th>
+                      <th>Category</th>
+                      <th>Qty</th>
+                      <th>Expiry</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminFoodsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="modal" id="foodModal">
+      <form class="form" id="foodForm" method="dialog">
+        <div class="modal-heading">
+          <h3 id="foodModalTitle">Add Food</h3>
+          <button class="icon-button" id="closeFoodModalBtn" type="button" aria-label="Close">x</button>
+        </div>
+        <input name="id" type="hidden">
+        <label>
+          Food name
+          <input name="name" type="text" required>
+        </label>
+        <div class="form-grid">
+          <label>
+            Category
+            <select name="category" required>
+              <option value="Vegetables">Vegetables</option>
+              <option value="Fruits">Fruits</option>
+              <option value="Meat">Meat</option>
+              <option value="Dairy">Dairy</option>
+              <option value="Grains">Grains</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+          <label>
+            Quantity
+            <input name="quantity" type="number" min="1" step="1" required>
+          </label>
+        </div>
+        <div class="form-grid">
+          <label>
+            Unit
+            <input name="unit" type="text" placeholder="e.g. bag, box, kg" required>
+          </label>
+          <label>
+            Storage location
+            <select name="location" required>
+              <option value="Fridge">Fridge</option>
+              <option value="Freezer">Freezer</option>
+              <option value="Pantry">Pantry</option>
+              <option value="Counter">Counter</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-grid">
+          <label>
+            Purchased
+            <input name="purchaseDate" type="date" required>
+          </label>
+          <label>
+            Expires
+            <input name="expiryDate" type="date" required>
+          </label>
+        </div>
+        <label>
+          Estimated price
+          <input name="price" type="number" min="0" step="0.01" required>
+        </label>
+        <button class="primary-button" type="submit">Save food</button>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>
