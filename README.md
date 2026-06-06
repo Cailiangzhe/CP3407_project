@@ -1,88 +1,58 @@
-# FreshTrack H5 Frontend
+# FreshTrack – Smart Pantry and Food Waste Reduction App
 
-This folder contains an improved H5 prototype for the CP3407 FreshTrack app. It is still self-contained and does not call external APIs, but it now demonstrates account-based data isolation, use-soon meal planning, recipe matching, shopping suggestions, and waste analytics.
+A smart household pantry management application that helps users keep track of the food they have at home, reduce food waste, and save money. Built as a team project for **CP3407 Advanced Software Engineering** at James Cook University.
 
-## Team and Planning
+---
 
-- Group: PA9
-- Initial user stories: [BACKLOG.md](BACKLOG.md)
-- Project plan: [PLAN.md](PLAN.md)
+## Overview
 
-## Files
+In many households, people buy groceries but forget what is already in the fridge or pantry. As a result, food often expires before it is used. FreshTrack lets users record food items with details such as quantity, category, purchase date, expiry date, and estimated price. The application then:
 
-- `index.html` - single page H5 application.
-- `assets/css/styles.css` - responsive green/white UI styling.
-- `assets/js/app.js` - page interaction, account isolation, pantry logic, use-soon menu, dashboard, shopping list, recipe suggestions, waste analytics, and admin database UI.
-- `assets/js/api.js` - backend-ready data interface. It currently uses `localStorage`; switch `USE_REMOTE_API` to `true` when a Flask/MySQL API is available.
-- `database/schema.sql` - MySQL schema for users, foods, recipes, recipe ingredients, shopping items, waste logs, and activity records.
+- Highlights items that are close to expiry, with a simple risk score (low / medium / high).
+- Suggests simple recipes based on the ingredients already in the pantry.
+- Generates a smart shopping list, including suggestions based on low stock or missing recipe ingredients.
+- Records what happened to each item — eaten, expired, discarded, or donated.
+- Shows a dashboard with monthly waste quantity and estimated money lost or saved.
 
-## Demo Login
+---
 
-- Admin email: `admin@freshtrack.local`
-- Admin password: `Admin123!`
-- Demo user email: `mia@example.com`
-- Demo user password: `Demo123!`
+## Team
 
-Normal users can register from the Register tab. Each user only sees their own food, shopping, and waste records. The admin account can open `Database UI` to view all users and food records.
+| Name | Role |
+|---|---|
+| Bo Yuan | Project Manager / Backend Developer |
+| Shiheng Wang | Frontend Developer / UI Designer |
+| Liangzhe Cai | Database Designer / Tester / Documentation |
 
-## Data Separation Design
+---
 
-FreshTrack does not need one physical database per user. A more realistic design is one shared application database where every user-owned table stores a `user_id` foreign key. After login, the backend uses the authenticated user's `user_id` to filter pantry, shopping, and waste-log records. This gives every account a private pantry while keeping the database maintainable.
+## Proposed Technology Stack
 
-## Run with MySQL
+| Area | Technology |
+|---|---|
+| Frontend | React / HTML / CSS / JavaScript |
+| Backend | Python Flask |
+| Database | SQLite (prototype), possible migration to MySQL |
+| Version Control | Git and GitHub |
+| Testing | Unit testing, integration testing, manual user acceptance testing |
+| Project Management | GitHub Issues / GitHub Projects |
 
-The browser should not connect to MySQL directly. Run the Flask backend, then open the app through Flask:
+The final stack may be adjusted based on lecturer feedback during the early practical sessions.
 
-```powershell
-cd freshtrack-h5-optimized
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+---
 
-$env:FRESHTRACK_DB_HOST="127.0.0.1"
-$env:FRESHTRACK_DB_PORT="3306"
-$env:FRESHTRACK_DB_USER="root"
-$env:FRESHTRACK_DB_PASSWORD="your_mysql_password"
-$env:FRESHTRACK_DB_NAME="freshtrack"
-$env:FRESHTRACK_SECRET_KEY="change-this-before-submission"
+## Initial Backlog
 
-.\.venv\Scripts\python.exe backend\app.py
-```
+See [BACKLOG.md](BACKLOG.md) for the initial set of user stories.
 
-Then open:
+---
 
-```text
-http://localhost:5000
-```
+## Project Status
 
-On startup, the backend creates the `freshtrack` database and required tables if they do not already exist. It also seeds the admin account, demo users, demo pantry records, and local recipe data.
+**Practical 1 — Planning and proposal stage.** The team has formed, the topic is settled, the project proposal has been drafted, and the GitHub repository has been created. No source code has been written yet.
 
-If your MySQL root account does not allow creating databases, create the database manually first, then use a MySQL user that has permissions on `freshtrack`.
+---
 
-## Backend API Contract
+## AI Use Declaration
 
-The frontend calls through `FreshTrackApi`. The Flask backend implements these endpoints:
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `GET /api/auth/me`
-- `GET /api/foods`
-- `POST /api/foods`
-- `PUT /api/foods/:id`
-- `DELETE /api/foods/:id`
-- `GET /api/recipes`
-- `GET /api/waste-logs`
-- `GET /api/shopping-items`
-- `POST /api/shopping-items`
-- `PATCH /api/shopping-items/:id/toggle`
-- `DELETE /api/shopping-items/:id`
-- `GET /api/admin/database`
-- `DELETE /api/admin/users/:id`
-
-The backend should use session cookies or JWT tokens and must always filter normal user records by the authenticated `user_id`. Admin-only endpoints should check `role = 'admin'`.
-
-## MySQL Notes
-
-Run `database/schema.sql` in MySQL to create the database structure. Passwords must be stored as bcrypt hashes in the real backend, not plain text.
-
-The H5 prototype does not connect directly to MySQL because browser code should not contain database credentials. Use Flask as the API layer between the frontend and MySQL.
+Generative AI was used to assist in drafting and structuring the Practical 1 report and this README. All content will be reviewed, edited, and approved by the team before submission. This use is acknowledged in line with the assessment guidance for CP3407, which permits Generative AI for Assessment 3 provided that it is appropriately declared.
